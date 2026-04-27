@@ -21,16 +21,12 @@ jobs:
         
       - name: Compile MQL5 file
         run: |
-          $source = ".\Experts\Project\Project.mq5"  # укажите ваш файл
+          $source = "Experts\Project\Project.mq5"  # укажите ваш файл
           $log = "compile.log"
           & "C:\MT5\metaeditor64.exe" /compile:"$source" /log:"$log"
           if ($LASTEXITCODE -ne 0) {
             Write-Host "Compilation failed!"
-            Get-ChildItem -Path "$env:APPDATA\MetaQuotes\Terminal\*" -Directory | ForEach-Object {
-            Write-Host "Folder: $($_.Name)"
-            Get-ChildItem -Path $_.FullName | Format-Table Name, Length, LastWriteTime -AutoSize
-            }
-            Get-Content $log -ErrorAction SilentlyContinue
+            Get-Content "Experts\Project\compile.log" -ErrorAction SilentlyContinue
             exit $LASTEXITCODE
           }
           Write-Host "Compilation succeeded."
