@@ -39,4 +39,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: compiled-expert
-          path: ".\Experts\Project\*.ex5"   # или *.ex4
+          path: "*.ex5"   # или *.ex4
