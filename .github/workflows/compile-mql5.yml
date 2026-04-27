@@ -26,7 +26,8 @@ jobs:
           & "C:\MT5\metaeditor64.exe" /compile:"$source" /log:"$log"
           if ($LASTEXITCODE -ne 0) {
             Write-Host "Compilation failed!"
-            Get-Content "Experts\Project\compile.log" -ErrorAction SilentlyContinue
+            Get-Content $log -ErrorAction SilentlyContinue
+            dir
             dir "Experts\Project"
             exit $LASTEXITCODE
           }
