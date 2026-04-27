@@ -1,0 +1,42 @@
+name: MQL Compile (Manual)
+
+on: [push, pull_request]
+
+jobs:
+  compile:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install MetaTrader 5
+        run: |
+          # Скачиваем установщик MT5
+          Invoke-WebRequest -Uri "https://download.mql5.com/cdn/web/metaquotes.software.corp/mt5/mt5setup.exe" -OutFile "$env:TEMP\mt5setup.exe"
+          # Тихо устанавливаем в C:\MT5
+          echo "Loaded"
+          Start-Process -FilePath "$env:TEMP\mt5setup.exe" -ArgumentList " /auto /portable /install /path:C:\MT5" -Wait -NoNewWindow
+          # Добавляем пути в окружение
+          echo "C:\MT5" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        
+      - name: Compile MQL5 file
+        run: |
+          $source = ".\Experts\Project\Project.mq5"  # укажите ваш файл
+          $log = "compile.log"
+          & "C:\MT5\metaeditor64.exe" /compile:"$source" /log:"$log"
+          if ($LASTEXITCODE -ne 0) {
+            Write-Host "Compilation failed!"
+            Get-ChildItem -Path "$env:APPDATA\MetaQuotes\Terminal\*" -Directory | ForEach-Object {
+            Write-Host "Folder: $($_.Name)"
+            Get-ChildItem -Path $_.FullName | Format-Table Name, Length, LastWriteTime -AutoSize
+            }
+            Get-Content $log -ErrorAction SilentlyContinue
+            exit $LASTEXITCODE
+          }
+          Write-Host "Compilation succeeded."
+
+      - name: Upload compiled binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: compiled-expert
+          path: ".\Experts\Project\*.ex5"   # или *.ex4
