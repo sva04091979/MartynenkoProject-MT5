@@ -27,6 +27,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) {
             Write-Host "Compilation failed!"
             Get-Content "Experts\Project\compile.log" -ErrorAction SilentlyContinue
+            dir "Experts\Project"
             exit $LASTEXITCODE
           }
           Write-Host "Compilation succeeded."
